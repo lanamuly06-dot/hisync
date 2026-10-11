@@ -1,7 +1,7 @@
 (function(){
 var $=function(i){return document.getElementById(i)};
 var B={ali:{n:"Alisha",c:"#8e8e93"},nova:{n:"Nova",c:"#e5343d"},ikh:{n:"Ikhsan",c:"#2f6fed"}};
-var fa,db,uid,P={},posts=[],chats=[],stories=[],live=null,lchats=[],pick="",isAdmin=false,banned=false,reports=[],reacts=[],firstReact=true,lastReact=0,canLive=false,notifs=[],comments=[],curPost=null,unsubC=null,stream=null,timer=null,frame="",pimg="",simg="",pphoto=null,tab="home",authed=false,editing=false,ready=false;
+var fa,db,uid,P={},posts=[],chats=[],stories=[],live=null,lchats=[],pick="",isAdmin=false,banned=false,reports=[],V={},reacts=[],firstReact=true,lastReact=0,canLive=false,notifs=[],comments=[],curPost=null,unsubC=null,stream=null,timer=null,frame="",pimg="",simg="",pphoto=null,tab="home",authed=false,editing=false,ready=false;
 function esc(s){var d=document.createElement("div");d.textContent=s==null?"":s;return d.innerHTML}
 function ago(t){var s=(Date.now()-t)/1000;return s<60?"baru saja":s<3600?Math.floor(s/60)+" mnt":s<86400?Math.floor(s/3600)+" jam":Math.floor(s/86400)+" hr"}
 function nid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
@@ -33,7 +33,7 @@ var cmEl=document.createElement("div");cmEl.className="ov hide";cmEl.innerHTML='
 var ntEl=document.createElement("div");ntEl.className="ov hide";ntEl.innerHTML='<div class="sheet"><b>Notifikasi</b><div id="ntl"></div><button class="btn ghost" id="ntx">Tutup</button></div>';document.body.appendChild(ntEl);
 var bell=document.createElement("button");bell.className="bell";bell.innerHTML='🔔<i class="hide" id="nbd"></i>';document.querySelector("header").appendChild(bell);
 function notify(p,type,text,id){if(!p||p.uid===uid)return;db.doc("notifs/"+(id||nid())).set({to:p.uid,from:uid,type:type,post:p.id,text:String(text||"").slice(0,60),ts:Date.now(),read:false}).catch(function(){})}
-function renderCm(){$("cml").innerHTML=comments.length?comments.map(function(c){return '<div class="cmt"><b style="color:'+col(c.uid)+'">'+esc(nm(c.uid))+'</b> <span class="tm">'+ago(c.ts)+'</span>'+(c.uid===uid||isAdmin?' <span class="x" data-cd="'+esc(c.id)+'">✕</span>':'')+'<div class="txt">'+esc(c.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada komentar. Tulis yang pertama!</div>'}
+function renderCm(){$("cml").innerHTML=comments.length?comments.map(function(c){return '<div class="cmt"><b style="color:'+col(c.uid)+'">'+esc(nm(c.uid))+vb(c.uid)+'</b> <span class="tm">'+ago(c.ts)+'</span>'+(c.uid===uid||isAdmin?' <span class="x" data-cd="'+esc(c.id)+'">✕</span>':'')+'<div class="txt">'+esc(c.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada komentar. Tulis yang pertama!</div>'}
 function openCm(id){var p=posts.filter(function(x){return x.id===id})[0];if(!p)return;curPost=p;comments=[];cmEl.classList.remove("hide");renderCm();if(unsubC)unsubC();
   unsubC=db.collection("posts/"+id+"/comments").orderBy("ts","asc").limit(100).onSnapshot(function(s){comments=s.docs.map(function(d){var x=d.data();x.id=d.id;return x});renderCm()},function(){})}
 function closeCm(){if(unsubC)unsubC();unsubC=null;curPost=null;cmEl.classList.add("hide")}
@@ -41,11 +41,28 @@ function sendCm(){var t=$("cmi").value.trim();if(!t||!curPost)return;var p=curPo
   db.doc("posts/"+p.id+"/comments/"+nid()).set({text:t,uid:uid,ts:Date.now()}).then(function(){db.doc("posts/"+p.id).update({cc:firebase.firestore.FieldValue.increment(1)}).catch(function(){});notify(p,"comment",t)}).catch(function(){alert("Gagal mengirim komentar.")})}
 $("cmb").onclick=sendCm;$("cmi").onkeydown=function(e){if(e.key==="Enter")sendCm()};$("cmx").onclick=closeCm;
 $("cml").onclick=function(e){var x=e.target.closest("[data-cd]");if(x&&curPost&&confirm("Hapus komentar ini?")){var pid=curPost.id;db.doc("posts/"+pid+"/comments/"+x.dataset.cd).delete().then(function(){db.doc("posts/"+pid).update({cc:firebase.firestore.FieldValue.increment(-1)}).catch(function(){})}).catch(function(){alert("Gagal menghapus.")})}};
-function renderNt(){$("ntl").innerHTML=notifs.length?notifs.map(function(n){return '<div class="nti'+(n.read?"":" u")+'" data-p="'+esc(n.post)+'">'+(n.read?"":"● ")+esc(nm(n.from))+(n.type==="like"?" menyukai postinganmu":' mengomentari: "'+esc(n.text)+'"')+' <span class="tm">'+ago(n.ts)+'</span></div>'}).join(""):'<div class="empty">Belum ada notifikasi.</div>'}
+function renderNt(){$("ntl").innerHTML=notifs.length?notifs.map(function(n){return '<div class="nti'+(n.read?"":" u")+'" data-p="'+esc(n.post)+'">'+(n.read?"":"● ")+esc(nm(n.from))+vb(n.from)+(n.type==="like"?" menyukai postinganmu":' mengomentari: "'+esc(n.text)+'"')+' <span class="tm">'+ago(n.ts)+'</span></div>'}).join(""):'<div class="empty">Belum ada notifikasi.</div>'}
 function renderBell(){var c=notifs.filter(function(n){return !n.read}).length,b=$("nbd");b.textContent=c>9?"9+":c;b.classList.toggle("hide",!c);if(!ntEl.classList.contains("hide"))renderNt()}
 function closeNt(){ntEl.classList.add("hide");notifs.forEach(function(n){if(!n.read)db.doc("notifs/"+n.id).update({read:true}).catch(function(){})})}
 bell.onclick=function(){renderNt();ntEl.classList.remove("hide")};
 $("ntx").onclick=closeNt;$("ntl").onclick=function(e){var i=e.target.closest("[data-p]");if(i){var id=i.dataset.p;closeNt();openCm(id)}};
+var BADGE='<svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align:-2px;margin-left:3px"><circle cx="12" cy="12" r="11" fill="#1d9bf0"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function vb(u){return V[u]?BADGE:""}
+var D=864e5;
+function fmtW(ms){var h=Math.ceil(ms/36e5);return h>=24?Math.ceil(h/24)+" hari":h+" jam"}
+function nameLog(p){var n=Date.now();return(p.nameLog||[]).filter(function(t){return n-t<7*D})}
+function nameLock(p){var l=nameLog(p);return l.length>=2?Math.min.apply(null,l)+7*D-Date.now():0}
+function unLock(p){var r=(p.unAt||0)+14*D-Date.now();return r>0?r:0}
+function biasLock(p){var r=(p.biasAt||0)+7*D-Date.now();return r>0?r:0}
+var ef=document.createElement("div");ef.id="ef";ef.className="hide";ef.innerHTML='<label>Nama tampilan</label><input id="en" maxlength="24"><div class="tm" id="enh" style="margin-top:4px"></div><label>Username</label><input id="eu" maxlength="20"><div class="tm" id="euh" style="margin-top:4px"></div>';
+var l1=$("setup").querySelector("label");l1.parentNode.insertBefore(ef,l1);
+var bh=document.createElement("div");bh.className="tm";bh.id="bh";bh.style.marginTop="8px";$("bias").parentNode.insertBefore(bh,$("bias").nextSibling);
+function setHints(isEdit){var p=me();ef.classList.toggle("hide",!(isEdit&&p));if(!(isEdit&&p)){bh.textContent="";return}
+  var nl=nameLock(p),ul=unLock(p),bl=biasLock(p);
+  $("en").disabled=!!nl;$("eu").disabled=!!ul;
+  $("enh").textContent=nl?"Nama sudah diganti 2× minggu ini. Bisa lagi dalam "+fmtW(nl):"Sisa ganti nama minggu ini: "+(2-nameLog(p).length)+"×";
+  $("euh").textContent=ul?"Username bisa diganti lagi dalam "+fmtW(ul):"Username bisa diganti 1× tiap 14 hari";
+  bh.textContent=bl?"Bias bisa diganti lagi dalam "+fmtW(bl):"Bias bisa diganti 1× seminggu"}
 var EMO=["❤️","😍","👏","🔥","😂"];
 function renderRc(){var el=$("rbar");if(!el||!live)return;var c={};reacts.forEach(function(r){if(r.live===live.ts)c[r.e]=(c[r.e]||0)+1});el.innerHTML=EMO.map(function(e){return '<button class="rb" data-e="'+e+'">'+e+' <span>'+(c[e]||0)+'</span></button>'}).join("")}
 function floatE(e){var s=document.createElement("span");s.className="fl";s.textContent=e;s.style.left=(15+Math.random()*65)+"%";document.body.appendChild(s);setTimeout(function(){s.remove()},2200)}
@@ -87,17 +104,27 @@ $("signup").onclick=function(){
   for(var k in P){if(P[k].username===u&&k!==uid){aerr("Username sudah dipakai.");return}}
   pick="";pphoto=null;$("bio").value="";editing={name:n,username:u};openSetup(false)
 };
-function openSetup(isEdit){
+function openSetup(isEdit){setHints(isEdit);
   $("stt").textContent=isEdit?"Edit profil":"Lengkapi profilmu";$("cancel").classList.toggle("hide",!isEdit);
   $("bias").innerHTML=Object.keys(B).map(function(k){return '<button data-k="'+k+'" style="--c:'+B[k].c+'" class="'+(pick===k?"on":"")+'"><img src="'+MP[k]+'" style="width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 20%;display:block;margin:0 auto 6px;outline:2px solid '+B[k].c+'">'+B[k].n+'</button>'}).join("");
   drawPP();show("setup")
 }
-$("bias").onclick=function(e){var b=e.target.closest("button");if(!b)return;pick=b.dataset.k;openSetup(!$("cancel").classList.contains("hide"))};
+$("bias").onclick=function(e){var b=e.target.closest("button");if(!b)return;if(me()&&b.dataset.k!==me().bias&&biasLock(me())){alert("Bias bisa diganti lagi dalam "+fmtW(biasLock(me()))+".");return}pick=b.dataset.k;openSetup(!$("cancel").classList.contains("hide"))};
 $("cancel").onclick=function(){editing=false;route()};
 $("done").onclick=function(){
   if(!pick){alert("Pilih bias dulu ya 🤍");return}
   var base=me()||editing||{};
-  put("profiles/"+uid,{name:base.name,username:base.username,bio:$("bio").value.trim(),bias:pick,photo:pphoto!==null?pphoto:(base.photo||""),ts:base.ts||Date.now()}).then(function(){authed=true;editing=false;route()})
+  var o={name:base.name,username:base.username,bio:$("bio").value.trim(),bias:pick,photo:pphoto!==null?pphoto:(base.photo||""),ts:base.ts||Date.now()},p=me();
+  if(p){var now=Date.now(),nn=$("en").value.trim().slice(0,24),uu=$("eu").value.trim().toLowerCase();
+    o.nameLog=nameLog(p);o.unAt=p.unAt||0;o.biasAt=p.biasAt||0;
+    if(!nn){alert("Nama tampilan tidak boleh kosong.");return}
+    if(nn!==p.name){if(nameLock(p)){alert("Nama sudah diganti 2× minggu ini. Bisa lagi dalam "+fmtW(nameLock(p))+".");return}o.name=nn;o.nameLog.push(now)}
+    if(uu!==p.username){if(unLock(p)){alert("Username baru bisa diganti lagi dalam "+fmtW(unLock(p))+".");return}
+      if(!/^[a-z0-9_.]{3,20}$/.test(uu)){alert("Username 3–20 huruf/angka/_ tanpa spasi.");return}
+      for(var k in P){if(P[k].username===uu&&k!==uid){alert("Username sudah dipakai.");return}}
+      o.username=uu;o.unAt=now}
+    if(pick!==p.bias){if(biasLock(p)){alert("Bias bisa diganti lagi dalam "+fmtW(biasLock(p))+".");return}o.biasAt=now}}
+  put("profiles/"+uid,o).then(function(){authed=true;editing=false;route()})
 };
 
 /* ROUTING */
@@ -126,23 +153,23 @@ function renderStories(){
   $("addst").onclick=function(){simg="";$("stx").value="";$("spv").innerHTML="";$("sh").classList.remove("hide")};
   [].forEach.call($("stories").querySelectorAll("[data-id]"),function(el){el.onclick=function(){
     var s=stories.filter(function(x){return x.id===el.dataset.id})[0];if(!s)return;
-    var v=$("sv");v.style.background=s.img&&String(s.img).indexOf("data:image/")===0?'#000 url('+s.img+') center/cover':col(s.uid);v.innerHTML='<small>'+esc(nm(s.uid))+' · '+ago(s.ts)+'</small>'+esc(s.text)+((s.uid===uid||isAdmin)?'<button class="btn ghost" id="sdel" style="position:absolute;bottom:40px;width:auto;padding:10px 20px">Hapus story</button>':'');var sd=$("sdel");if(sd)sd.onclick=function(ev){ev.stopPropagation();if(confirm("Hapus story ini?")){del("stories/"+s.id);v.classList.add("hide")}};v.classList.remove("hide");v.onclick=function(){v.classList.add("hide")}}})
+    var v=$("sv");v.style.background=s.img&&String(s.img).indexOf("data:image/")===0?'#000 url('+s.img+') center/cover':col(s.uid);v.innerHTML='<small>'+esc(nm(s.uid))+vb(s.uid)+' · '+ago(s.ts)+'</small>'+esc(s.text)+((s.uid===uid||isAdmin)?'<button class="btn ghost" id="sdel" style="position:absolute;bottom:40px;width:auto;padding:10px 20px">Hapus story</button>':'');var sd=$("sdel");if(sd)sd.onclick=function(ev){ev.stopPropagation();if(confirm("Hapus story ini?")){del("stories/"+s.id);v.classList.add("hide")}};v.classList.remove("hide");v.onclick=function(){v.classList.add("hide")}}})
 }
 function renderPosts(){
   $("posts").innerHTML=posts.length?posts.map(function(p){
     var l=p.likes||[],on=l.indexOf(uid)>-1;
-    return '<div class="post" style="--c:'+col(p.uid)+'"><div class="who">'+av(p.uid,36)+'<div><div class="nm">'+esc(nm(p.uid))+'</div><div class="tm">'+ago(p.ts)+'</div></div></div><div class="txt">'+esc(p.text)+'</div>'+(p.img&&String(p.img).indexOf("data:image/")===0?'<img class="pim" src="'+p.img+'">':'')+'<div class="acts"><button class="like'+(on?" on":"")+'" data-id="'+esc(p.id)+'">'+(on?"♥":"♡")+" "+l.length+'</button><button class="lb" data-act="cm" data-id="'+esc(p.id)+'">💬 '+Math.max(0,p.cc||0)+'</button>'+postActs(p)+'</div></div>'}).join(""):'<div class="empty">Belum ada postingan. Jadilah yang pertama menyapa 🤍</div>'
+    return '<div class="post" style="--c:'+col(p.uid)+'"><div class="who">'+av(p.uid,36)+'<div><div class="nm">'+esc(nm(p.uid))+vb(p.uid)+'</div><div class="tm">'+ago(p.ts)+'</div></div></div><div class="txt">'+esc(p.text)+'</div>'+(p.img&&String(p.img).indexOf("data:image/")===0?'<img class="pim" src="'+p.img+'">':'')+'<div class="acts"><button class="like'+(on?" on":"")+'" data-id="'+esc(p.id)+'">'+(on?"♥":"♡")+" "+l.length+'</button><button class="lb" data-act="cm" data-id="'+esc(p.id)+'">💬 '+Math.max(0,p.cc||0)+'</button>'+postActs(p)+'</div></div>'}).join(""):'<div class="empty">Belum ada postingan. Jadilah yang pertama menyapa 🤍</div>'
 }
 function renderChat(){
   var near=innerHeight+scrollY>document.body.scrollHeight-180,first=!$("msgs").dataset.i;
-  $("msgs").innerHTML=chats.length?chats.map(function(m){var s=m.uid===uid;return '<div class="m'+(s?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+(s?"Kamu":esc(nm(m.uid)))+(s||isAdmin?'<span class="x" data-cdel="chat/'+esc(m.id)+'">✕</span>':'')+(isAdmin&&!s?'<span class="x" data-cban="'+esc(m.uid)+'">⛔</span>':'')+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada obrolan. Sapa fans lain!</div>';
+  $("msgs").innerHTML=chats.length?chats.map(function(m){var s=m.uid===uid;return '<div class="m'+(s?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+(s?"Kamu":esc(nm(m.uid)))+vb(m.uid)+(s||isAdmin?'<span class="x" data-cdel="chat/'+esc(m.id)+'">✕</span>':'')+(isAdmin&&!s?'<span class="x" data-cban="'+esc(m.uid)+'">⛔</span>':'')+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada obrolan. Sapa fans lain!</div>';
   if(tab==="chat"&&(near||first)){scrollTo(0,document.body.scrollHeight);$("msgs").dataset.i=1}
 }
 function renderLive(){
   var h="";
   if(live&&live.active){
-    h='<div class="card"><span class="live">● LIVE</span><div class="nm" style="font-size:17px">'+esc(live.title)+'</div><div class="tm">oleh '+esc(nm(live.uid))+' · '+ago(live.ts)+'</div>'+(live.uid===uid||isAdmin?'<button class="btn ghost" id="endlive">Akhiri Live</button>':"")+'</div>'+
-    (live.uid===uid?'<video id="lv" autoplay playsinline muted class="lvv"></video>':'<img id="lf" class="lvv" '+(frame?'src="'+frame+'"':'')+'>')+'<div class="rbar" id="rbar"></div><div class="msgs" style="padding-bottom:140px">'+(lchats.length?lchats.map(function(m){return '<div class="m'+(m.uid===uid?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+esc(nm(m.uid))+(m.uid===uid||isAdmin?'<span class="x" data-cdel="livechat/'+esc(m.id)+'">✕</span>':'')+(isAdmin&&m.uid!==uid?'<span class="x" data-cban="'+esc(m.uid)+'">⛔</span>':'')+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada komentar.</div>')+'</div>'+
+    h='<div class="card"><span class="live">● LIVE</span><div class="nm" style="font-size:17px">'+esc(live.title)+'</div><div class="tm">oleh '+esc(nm(live.uid))+vb(live.uid)+' · '+ago(live.ts)+'</div>'+(live.uid===uid||isAdmin?'<button class="btn ghost" id="endlive">Akhiri Live</button>':"")+'</div>'+
+    (live.uid===uid?'<video id="lv" autoplay playsinline muted class="lvv"></video>':'<img id="lf" class="lvv" '+(frame?'src="'+frame+'"':'')+'>')+'<div class="rbar" id="rbar"></div><div class="msgs" style="padding-bottom:140px">'+(lchats.length?lchats.map(function(m){return '<div class="m'+(m.uid===uid?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+esc(nm(m.uid))+vb(m.uid)+(m.uid===uid||isAdmin?'<span class="x" data-cdel="livechat/'+esc(m.id)+'">✕</span>':'')+(isAdmin&&m.uid!==uid?'<span class="x" data-cban="'+esc(m.uid)+'">⛔</span>':'')+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada komentar.</div>')+'</div>'+
     '<div class="cbar"><input id="lt" maxlength="150" placeholder="Komentar live…"><button id="lb">Kirim</button></div>'
   }else h='<div class="card"><div class="nm" style="font-size:17px">Belum ada live</div>'+(canLive?'<div class="tm">Mulai ruang live dan ajak fans ngobrol bareng.</div><label>Judul live</label><input id="ltitle" maxlength="60" placeholder="mis. Nonton bareng"><button class="btn" id="golive">Mulai Live</button>':'<div class="tm">Live hanya dimulai oleh admin atau member HISYNC. Cek lagi nanti ya 🤍</div>')+'</div>';
   var keep=$("lt")?$("lt").value:"";$("livebox").innerHTML=h;if($("lt"))$("lt").value=keep;if($("lv")&&stream)$("lv").srcObject=stream;renderRc();
@@ -157,8 +184,8 @@ function renderMem(){
 }
 function renderMe(){
   var p=me();if(!p)return;var b=B[p.bias];
-  $("meb").innerHTML='<div class="prof">'+av(uid,84)+'<div class="nm" style="font-size:20px">'+esc(p.name)+'</div><div class="tm">@'+esc(p.username)+' · bias '+(b?b.n:"-")+'</div><p style="margin-top:12px">'+(esc(p.bio)||'<span class="tm">Belum ada bio</span>')+'</p></div><div style="padding:0 24px"><button class="btn ghost" id="edit">Edit profil</button><button class="btn ghost" id="out">Keluar</button></div>'+repHtml();
-  $("edit").onclick=function(){pick=p.bias;pphoto=null;$("bio").value=p.bio||"";editing=true;openSetup(true)};
+  $("meb").innerHTML='<div class="prof">'+av(uid,84)+'<div class="nm" style="font-size:20px">'+esc(p.name)+vb(uid)+'</div><div class="tm">@'+esc(p.username)+' · bias '+(b?b.n:"-")+'</div><p style="margin-top:12px">'+(esc(p.bio)||'<span class="tm">Belum ada bio</span>')+'</p></div><div style="padding:0 24px"><button class="btn ghost" id="edit">Edit profil</button><button class="btn ghost" id="out">Keluar</button></div>'+repHtml();
+  $("edit").onclick=function(){pick=p.bias;pphoto=null;$("en").value=p.name;$("eu").value=p.username;$("bio").value=p.bio||"";editing=true;openSetup(true)};
   $("out").onclick=function(){stopCam();fa.signOut().then(function(){location.reload()})}
 }
 function renderAll(){renderStories();renderPosts();renderChat();renderLive();renderMem();renderMe()}
@@ -198,9 +225,10 @@ else{
     db.doc("live/current").onSnapshot(function(d){live=d.exists?d.data():null;if(ready&&authed&&!editing&&me())renderLive()},function(){});
     db.doc("live/frame").onSnapshot(function(d){if(d.exists&&String(d.data().img).indexOf("data:image/")===0){frame=d.data().img;var f=$("lf");if(f)f.src=frame}},function(){});
     db.collection("notifs").where("to","==",uid).limit(50).onSnapshot(function(s){notifs=s.docs.map(function(d){var x=d.data();x.id=d.id;return x}).sort(function(a,b){return b.ts-a.ts});renderBell()},function(){});
-    db.doc("hosts/"+uid).get().then(function(d){if(d.exists){canLive=true;if(ready&&authed&&!editing&&me())renderLive()}},function(){});
+    db.collection("verified").onSnapshot(function(s){V={};s.docs.forEach(function(d){V[d.id]=true});if(ready&&authed&&!editing&&me())renderAll();if(curPost)renderCm()},function(){});
+    db.doc("hosts/"+uid).get().then(function(d){if(d.exists){canLive=true;db.doc("verified/"+uid).set({ts:Date.now()}).catch(function(){});if(ready&&authed&&!editing&&me())renderLive()}},function(){});
     db.collection("livereact").orderBy("ts","desc").limit(200).onSnapshot(function(s){reacts=s.docs.map(function(d){return d.data()});if(!firstReact)s.docChanges().forEach(function(c){var r=c.doc.data();if(c.type==="added"&&r.uid!==uid&&live&&r.live===live.ts&&Date.now()-r.ts<8000)floatE(r.e)});firstReact=false;renderRc()},function(){});
-    db.doc("admins/"+uid).get().then(function(d){if(d.exists){isAdmin=true;canLive=true;sub("reports","desc",50,function(a){reports=a});if(ready&&authed&&!editing&&me())renderAll()}},function(){});
+    db.doc("admins/"+uid).get().then(function(d){if(d.exists){isAdmin=true;canLive=true;db.doc("verified/"+uid).set({ts:Date.now()}).catch(function(){});sub("reports","desc",50,function(a){reports=a});if(ready&&authed&&!editing&&me())renderAll()}},function(){});
   }
   fa.onAuthStateChanged(function(u){
     if(!u){if(banned)return;ready=true;authed=false;uid=null;show("auth");return}
