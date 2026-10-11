@@ -180,4 +180,7 @@ else{
     if(!u){if(banned)return;ready=true;authed=false;uid=null;show("auth");return}
     uid=u.uid;authed=true;
     if(started)return;started=true;
-    db.doc("bans/"+uid).get().then(function(d){if(d.exists){banned=true;$
+    db.doc("bans/"+uid).get().then(function(d){if(d.exists){banned=true;$("gate").innerHTML='<p class="sub">Akunmu diblokir oleh admin HISYNC.</p>';show("gate");fa.signOut()}else go()},function(){go()});
+  });
+}
+})();
