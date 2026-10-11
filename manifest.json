@@ -1,0 +1,15 @@
+{
+  "name": "HISYNC",
+  "short_name": "HISYNC",
+  "description": "Ruang fans HISYNC",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {"src": "Tak_berjudul108_20261011224016.png", "sizes": "2048x2048", "type": "image/png", "purpose": "any"},
+    {"src": "Tak_berjudul108_20261011224016.png", "sizes": "2048x2048", "type": "image/png", "purpose": "maskable"}
+  ]
+}
