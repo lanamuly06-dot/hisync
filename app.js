@@ -142,7 +142,7 @@ function renderLive(){
   var h="";
   if(live&&live.active){
     h='<div class="card"><span class="live">● LIVE</span><div class="nm" style="font-size:17px">'+esc(live.title)+'</div><div class="tm">oleh '+esc(nm(live.uid))+' · '+ago(live.ts)+'</div>'+(live.uid===uid||isAdmin?'<button class="btn ghost" id="endlive">Akhiri Live</button>':"")+'</div>'+
-    (live.uid===uid?'<video id="lv" autoplay playsinline muted class="lvv"></video>':'<img id="lf" class="lvv" '+(frame?'src="'+frame+'"':'')+'>')+'<div class="rbar" id="rbar"></div><div class="msgs" style="padding-bottom:140px">'+(lchats.length?lchats.map(function(m){return '<div class="m'+(m.uid===uid?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+esc(nm(m.uid))+(m.uid===uid||isAdmin?'<span class="x" data-cdel="livechat/'+esc(m.id)+'">✕</span>':'')+(is
+    (live.uid===uid?'<video id="lv" autoplay playsinline muted class="lvv"></video>':'<img id="lf" class="lvv" '+(frame?'src="'+frame+'"':'')+'>')+'<div class="rbar" id="rbar"></div><div class="msgs" style="padding-bottom:140px">'+(lchats.length?lchats.map(function(m){return '<div class="m'+(m.uid===uid?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+esc(nm(m.uid))+(m.uid===uid||isAdmin?'<span class="x" data-cdel="livechat/'+esc(m.id)+'">✕</span>':'')+(isAdmin&&m.uid!==uid?'<span class="x" data-cban="'+esc(m.uid)+'">⛔</span>':'')+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada komentar.</div>')+'</div>'+
     '<div class="cbar"><input id="lt" maxlength="150" placeholder="Komentar live…"><button id="lb">Kirim</button></div>'
   }else h='<div class="card"><div class="nm" style="font-size:17px">Belum ada live</div>'+(canLive?'<div class="tm">Mulai ruang live dan ajak fans ngobrol bareng.</div><label>Judul live</label><input id="ltitle" maxlength="60" placeholder="mis. Nonton bareng"><button class="btn" id="golive">Mulai Live</button>':'<div class="tm">Live hanya dimulai oleh admin atau member HISYNC. Cek lagi nanti ya 🤍</div>')+'</div>';
   var keep=$("lt")?$("lt").value:"";$("livebox").innerHTML=h;if($("lt"))$("lt").value=keep;if($("lv")&&stream)$("lv").srcObject=stream;renderRc();
@@ -209,4 +209,4 @@ else{
     db.doc("bans/"+uid).get().then(function(d){if(d.exists){banned=true;$("gate").innerHTML='<p class="sub">Akunmu diblokir oleh admin HISYNC.</p>';show("gate");fa.signOut()}else go()},function(){go()});
   });
 }
-})();                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+})();
