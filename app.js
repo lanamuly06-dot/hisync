@@ -1,7 +1,7 @@
 (function(){
 var $=function(i){return document.getElementById(i)};
 var B={ali:{n:"Alisha",c:"#8e8e93"},nova:{n:"Nova",c:"#e5343d"},ikh:{n:"Ikhsan",c:"#2f6fed"}};
-var fa,db,uid,P={},posts=[],chats=[],stories=[],live=null,lchats=[],pick="",isAdmin=false,banned=false,reports=[],notifs=[],comments=[],curPost=null,unsubC=null,stream=null,timer=null,frame="",pimg="",simg="",pphoto=null,tab="home",authed=false,editing=false,ready=false;
+var fa,db,uid,P={},posts=[],chats=[],stories=[],live=null,lchats=[],pick="",isAdmin=false,banned=false,reports=[],reacts=[],firstReact=true,lastReact=0,canLive=false,notifs=[],comments=[],curPost=null,unsubC=null,stream=null,timer=null,frame="",pimg="",simg="",pphoto=null,tab="home",authed=false,editing=false,ready=false;
 function esc(s){var d=document.createElement("div");d.textContent=s==null?"":s;return d.innerHTML}
 function ago(t){var s=(Date.now()-t)/1000;return s<60?"baru saja":s<3600?Math.floor(s/60)+" mnt":s<86400?Math.floor(s/3600)+" jam":Math.floor(s/86400)+" hr"}
 function nid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
@@ -27,8 +27,8 @@ function repAct(a,id){var r=reports.filter(function(x){return x.id===id})[0];if(
   else if(a==="ban"){if(r.author===uid)return;if(confirm("Blokir pengguna ini dan hapus kontennya?")){put("bans/"+r.author,{ts:Date.now(),by:uid});del(r.target);del("reports/"+id)}}
   else del("reports/"+id)
 }
-function modClick(e){var x=e.target.closest("[data-cdel]");if(x){if(confirm("Hapus pesan ini?"))del(x.dataset.cdel);return}var b=e.target.closest("[data-cban]");if(b)ban(b.dataset.cban)}
-var ncss=document.createElement("style");ncss.textContent=".bell{border:0;background:var(--soft);color:var(--fg);border-radius:99px;padding:6px 12px;font-size:15px;cursor:pointer;position:relative}.bell i{position:absolute;top:-4px;right:-4px;background:#e5343d;color:#fff;font:700 10px/16px sans-serif;min-width:16px;height:16px;border-radius:99px;text-align:center;font-style:normal}.ov{position:fixed;inset:0;background:#0007;z-index:15;display:flex;align-items:flex-end}.ov .sheet{max-height:80vh;overflow:auto}.cmt{padding:8px 0;border-top:1px solid var(--line);font-size:14px}.cmt b{font-size:13px}.nti{padding:10px 0;border-top:1px solid var(--line);font-size:14px;cursor:pointer}.nti.u{font-weight:600}.cin{display:flex;gap:8px;margin-top:10px}.cin button{border:0;background:var(--acc);color:#fff;border-radius:12px;padding:0 16px;font:600 14px inherit;font-family:inherit;cursor:pointer}";document.head.appendChild(ncss);
+function modClick(e){var r=e.target.closest("[data-e]");if(r){react(r.dataset.e);return}var x=e.target.closest("[data-cdel]");if(x){if(confirm("Hapus pesan ini?"))del(x.dataset.cdel);return}var b=e.target.closest("[data-cban]");if(b)ban(b.dataset.cban)}
+var ncss=document.createElement("style");ncss.textContent=".bell{border:0;background:var(--soft);color:var(--fg);border-radius:99px;padding:6px 12px;font-size:15px;cursor:pointer;position:relative}.bell i{position:absolute;top:-4px;right:-4px;background:#e5343d;color:#fff;font:700 10px/16px sans-serif;min-width:16px;height:16px;border-radius:99px;text-align:center;font-style:normal}.ov{position:fixed;inset:0;background:#0007;z-index:15;display:flex;align-items:flex-end}.ov .sheet{max-height:80vh;overflow:auto}.cmt{padding:8px 0;border-top:1px solid var(--line);font-size:14px}.cmt b{font-size:13px}.nti{padding:10px 0;border-top:1px solid var(--line);font-size:14px;cursor:pointer}.nti.u{font-weight:600}.cin{display:flex;gap:8px;margin-top:10px}.cin button{border:0;background:var(--acc);color:#fff;border-radius:12px;padding:0 16px;font:600 14px inherit;font-family:inherit;cursor:pointer}";ncss.textContent+=".fl{position:fixed;bottom:130px;font-size:28px;z-index:30;pointer-events:none;animation:flup 2.2s ease-out forwards}@keyframes flup{from{transform:translateY(0);opacity:1}to{transform:translateY(-260px);opacity:0}}.rbar{display:flex;gap:8px;padding:10px 18px;flex-wrap:wrap}.rb{border:1px solid var(--line);background:var(--soft);border-radius:99px;padding:6px 12px;font:600 14px inherit;font-family:inherit;cursor:pointer;color:var(--fg)}";document.head.appendChild(ncss);
 var cmEl=document.createElement("div");cmEl.className="ov hide";cmEl.innerHTML='<div class="sheet"><b>Komentar</b><div id="cml"></div><div class="cin"><input id="cmi" maxlength="200" placeholder="Tulis komentar…"><button id="cmb">Kirim</button></div><button class="btn ghost" id="cmx">Tutup</button></div>';document.body.appendChild(cmEl);
 var ntEl=document.createElement("div");ntEl.className="ov hide";ntEl.innerHTML='<div class="sheet"><b>Notifikasi</b><div id="ntl"></div><button class="btn ghost" id="ntx">Tutup</button></div>';document.body.appendChild(ntEl);
 var bell=document.createElement("button");bell.className="bell";bell.innerHTML='🔔<i class="hide" id="nbd"></i>';document.querySelector("header").appendChild(bell);
@@ -46,6 +46,10 @@ function renderBell(){var c=notifs.filter(function(n){return !n.read}).length,b=
 function closeNt(){ntEl.classList.add("hide");notifs.forEach(function(n){if(!n.read)db.doc("notifs/"+n.id).update({read:true}).catch(function(){})})}
 bell.onclick=function(){renderNt();ntEl.classList.remove("hide")};
 $("ntx").onclick=closeNt;$("ntl").onclick=function(e){var i=e.target.closest("[data-p]");if(i){var id=i.dataset.p;closeNt();openCm(id)}};
+var EMO=["❤️","😍","👏","🔥","😂"];
+function renderRc(){var el=$("rbar");if(!el||!live)return;var c={};reacts.forEach(function(r){if(r.live===live.ts)c[r.e]=(c[r.e]||0)+1});el.innerHTML=EMO.map(function(e){return '<button class="rb" data-e="'+e+'">'+e+' <span>'+(c[e]||0)+'</span></button>'}).join("")}
+function floatE(e){var s=document.createElement("span");s.className="fl";s.textContent=e;s.style.left=(15+Math.random()*65)+"%";document.body.appendChild(s);setTimeout(function(){s.remove()},2200)}
+function react(e){if(!live||!live.active||Date.now()-lastReact<400)return;lastReact=Date.now();floatE(e);db.doc("livereact/"+nid()).set({e:e,uid:uid,ts:Date.now(),live:live.ts}).catch(function(){})}
 var MP={ali:"IMG-20260903-WA0074.jpg",nova:"IMG-20260903-WA0004.jpg",ikh:"IMG-20260901-WA0016.jpg"};
 function shrink(f,m,q,sq){return new Promise(function(ok){var r=new FileReader();r.onload=function(){var i=new Image();i.onload=function(){var c=document.createElement("canvas"),x=c.getContext("2d");if(sq){var s=Math.min(i.width,i.height);c.width=c.height=m;x.drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,m,m)}else{var k=Math.min(1,m/Math.max(i.width,i.height));c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);x.drawImage(i,0,0,c.width,c.height)}ok(c.toDataURL("image/jpeg",q))};i.src=r.result};r.readAsDataURL(f)})}
 function pick1(cam,cb){var f=$(cam?"fc":"fg");f.value="";f.onchange=function(){if(f.files[0])cb(f.files[0])};f.click()}
@@ -138,11 +142,11 @@ function renderLive(){
   var h="";
   if(live&&live.active){
     h='<div class="card"><span class="live">● LIVE</span><div class="nm" style="font-size:17px">'+esc(live.title)+'</div><div class="tm">oleh '+esc(nm(live.uid))+' · '+ago(live.ts)+'</div>'+(live.uid===uid||isAdmin?'<button class="btn ghost" id="endlive">Akhiri Live</button>':"")+'</div>'+
-    (live.uid===uid?'<video id="lv" autoplay playsinline muted class="lvv"></video>':'<img id="lf" class="lvv" '+(frame?'src="'+frame+'"':'')+'>')+'<div class="msgs" style="padding-bottom:140px">'+(lchats.length?lchats.map(function(m){return '<div class="m'+(m.uid===uid?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+esc(nm(m.uid))+(m.uid===uid||isAdmin?'<span class="x" data-cdel="livechat/'+esc(m.id)+'">✕</span>':'')+(isAdmin&&m.uid!==uid?'<span class="x" data-cban="'+esc(m.uid)+'">⛔</span>':'')+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada komentar.</div>')+'</div>'+
+    (live.uid===uid?'<video id="lv" autoplay playsinline muted class="lvv"></video>':'<img id="lf" class="lvv" '+(frame?'src="'+frame+'"':'')+'>')+'<div class="rbar" id="rbar"></div><div class="msgs" style="padding-bottom:140px">'+(lchats.length?lchats.map(function(m){return '<div class="m'+(m.uid===uid?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+esc(nm(m.uid))+(m.uid===uid||isAdmin?'<span class="x" data-cdel="livechat/'+esc(m.id)+'">✕</span>':'')+(is
     '<div class="cbar"><input id="lt" maxlength="150" placeholder="Komentar live…"><button id="lb">Kirim</button></div>'
-  }else h='<div class="card"><div class="nm" style="font-size:17px">Belum ada live</div><div class="tm">Mulai ruang live dan ajak fans lain ngobrol bareng.</div><label>Judul live</label><input id="ltitle" maxlength="60" placeholder="mis. Nonton bareng"><button class="btn" id="golive">Mulai Live</button></div>';
-  var keep=$("lt")?$("lt").value:"";$("livebox").innerHTML=h;if($("lt"))$("lt").value=keep;if($("lv")&&stream)$("lv").srcObject=stream;
-  if($("golive"))$("golive").onclick=function(){var t=$("ltitle").value.trim();if(!t)return;put("live/current",{title:t,uid:uid,ts:Date.now(),active:true});startCam()};
+  }else h='<div class="card"><div class="nm" style="font-size:17px">Belum ada live</div>'+(canLive?'<div class="tm">Mulai ruang live dan ajak fans ngobrol bareng.</div><label>Judul live</label><input id="ltitle" maxlength="60" placeholder="mis. Nonton bareng"><button class="btn" id="golive">Mulai Live</button>':'<div class="tm">Live hanya dimulai oleh admin atau member HISYNC. Cek lagi nanti ya 🤍</div>')+'</div>';
+  var keep=$("lt")?$("lt").value:"";$("livebox").innerHTML=h;if($("lt"))$("lt").value=keep;if($("lv")&&stream)$("lv").srcObject=stream;renderRc();
+  if($("golive"))$("golive").onclick=function(){var t=$("ltitle").value.trim();if(!t||!canLive)return;put("live/current",{title:t,uid:uid,ts:Date.now(),active:true});startCam()};
   if($("endlive"))$("endlive").onclick=function(){stopCam();put("live/current",{title:live.title,uid:live.uid,ts:live.ts,active:false})};
   if($("lb")){var f=function(){var t=$("lt").value.trim();if(!t)return;$("lt").value="";put("livechat/"+nid(),{text:t,uid:uid,ts:Date.now(),live:live.ts})};$("lb").onclick=f;$("lt").onkeydown=function(e){if(e.key==="Enter")f()}}
 }
@@ -194,7 +198,9 @@ else{
     db.doc("live/current").onSnapshot(function(d){live=d.exists?d.data():null;if(ready&&authed&&!editing&&me())renderLive()},function(){});
     db.doc("live/frame").onSnapshot(function(d){if(d.exists&&String(d.data().img).indexOf("data:image/")===0){frame=d.data().img;var f=$("lf");if(f)f.src=frame}},function(){});
     db.collection("notifs").where("to","==",uid).limit(50).onSnapshot(function(s){notifs=s.docs.map(function(d){var x=d.data();x.id=d.id;return x}).sort(function(a,b){return b.ts-a.ts});renderBell()},function(){});
-    db.doc("admins/"+uid).get().then(function(d){if(d.exists){isAdmin=true;sub("reports","desc",50,function(a){reports=a});if(ready&&authed&&!editing&&me())renderAll()}},function(){});
+    db.doc("hosts/"+uid).get().then(function(d){if(d.exists){canLive=true;if(ready&&authed&&!editing&&me())renderLive()}},function(){});
+    db.collection("livereact").orderBy("ts","desc").limit(200).onSnapshot(function(s){reacts=s.docs.map(function(d){return d.data()});if(!firstReact)s.docChanges().forEach(function(c){var r=c.doc.data();if(c.type==="added"&&r.uid!==uid&&live&&r.live===live.ts&&Date.now()-r.ts<8000)floatE(r.e)});firstReact=false;renderRc()},function(){});
+    db.doc("admins/"+uid).get().then(function(d){if(d.exists){isAdmin=true;canLive=true;sub("reports","desc",50,function(a){reports=a});if(ready&&authed&&!editing&&me())renderAll()}},function(){});
   }
   fa.onAuthStateChanged(function(u){
     if(!u){if(banned)return;ready=true;authed=false;uid=null;show("auth");return}
@@ -203,4 +209,4 @@ else{
     db.doc("bans/"+uid).get().then(function(d){if(d.exists){banned=true;$("gate").innerHTML='<p class="sub">Akunmu diblokir oleh admin HISYNC.</p>';show("gate");fa.signOut()}else go()},function(){go()});
   });
 }
-})();
+})();                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
