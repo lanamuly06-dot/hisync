@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HISYNC</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="gate" class="wrap"><p class="sub">Memuat…</p></div>
+
+<div id="auth" class="wrap hide">
+  <h1 class="logo">HISYNC</h1><p class="sub">Masuk atau buat akun untuk bergabung</p>
+  <div id="fm">
+    <button class="sb" id="bg">Lanjut dengan Google</button>
+    <button class="sb" id="bf">Lanjut dengan Facebook</button>
+    <div class="or">atau dengan email</div>
+    <input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Password (min. 6 karakter)" style="margin-top:8px" autocomplete="current-password">
+    <div class="row2"><button class="btn" id="bin">Masuk</button><button class="btn ghost" id="bup" style="margin-top:20px">Daftar</button></div>
+    <button class="lnk" id="bfp">Lupa password?</button>
+    <div class="or">atau dengan nomor telepon</div>
+    <input id="ph" type="tel" placeholder="+62 812xxxxxxx">
+    <button class="btn ghost" id="bsms">Kirim kode SMS</button>
+    <div id="cdw" class="hide"><input id="cd" inputmode="numeric" placeholder="Kode 6 digit" style="margin-top:8px"><button class="btn" id="bcode">Verifikasi</button></div>
+  </div>
+  <div id="fs" class="hide">
+    <p class="sub" style="margin-top:-14px">Satu langkah lagi: buat identitasmu di HISYNC</p>
+    <label>Nama tampilan</label><input id="sn" maxlength="24" placeholder="Nama kamu">
+    <label>Username</label><input id="su" maxlength="20" placeholder="tanpa spasi, mis. fans_hisync">
+    <button class="btn" id="signup">Lanjut</button><button class="btn ghost" id="fsout">Ganti akun</button>
+  </div>
+  <div id="rc"></div><div class="err" id="aerr"></div>
+</div>
+
+<div id="setup" class="wrap hide">
+  <h1 style="font-size:24px;padding:0" id="stt">Lengkapi profilmu</h1><p class="sub">Pilih bias dan tulis bio singkat</p><div style="text-align:center"><div id="ppv2" style="display:flex;justify-content:center;margin:6px 0 10px"></div><button class="ib" id="ppg">🖼 Galeri</button><button class="ib" id="ppc">📷 Kamera</button></div>
+  <label>Bias favoritmu</label>
+  <div class="bias" id="bias"></div>
+  <label>Bio</label><textarea id="bio" rows="4" maxlength="160" placeholder="Ceritakan tentang dirimu…"></textarea>
+  <button class="btn" id="done">Simpan</button>
+  <button class="btn ghost hide" id="cancel">Batal</button>
+</div>
+
+<div id="app" class="hide">
+  <header><span class="logo">HISYNC</span><span id="hi" class="tm"></span></header>
+  <main>
+    <section id="v-home">
+      <div class="stories" id="stories"></div>
+      <div class="box" style="flex-wrap:wrap"><textarea id="pt" rows="2" maxlength="280" placeholder="Apa yang kamu rasakan hari ini?"></textarea><div id="ppv" style="flex:1 1 100%"></div><button class="ib" id="pg">🖼 Galeri</button><button class="ib" id="pc">📷 Kamera</button><button id="pb" style="margin-left:auto;padding:10px 18px">Kirim</button></div>
+      <div id="posts"></div>
+    </section>
+    <section id="v-chat" class="hide"><div class="msgs" id="msgs"></div>
+      <div class="cbar"><input id="ct" maxlength="200" placeholder="Ketik pesan…"><button id="cb">Kirim</button></div></section>
+    <section id="v-live" class="hide"><div id="livebox"></div></section>
+    <section id="v-mem" class="hide"><div id="mems"></div></section>
+    <section id="v-me" class="hide"><div id="meb"></div></section>
+  </main>
+  <nav id="nav">
+    <button data-t="home" class="on"><b>⌂</b>Beranda</button>
+    <button data-t="chat"><b>✉</b>Chat</button>
+    <button data-t="live"><b>◉</b>Live</button>
+    <button data-t="mem"><b>★</b>Member</button>
+    <button data-t="me"><b>☺</b>Profil</button>
+  </nav>
+</div>
+<input type="file" id="fg" accept="image/*" hidden><input type="file" id="fc" accept="image/*" capture="user" hidden>
+<div id="sh" class="hide"><div class="sheet"><b>Buat Story</b><textarea id="stx" rows="3" maxlength="100" placeholder="Tulis sesuatu (opsional)"></textarea><div id="spv"></div><button class="ib" id="sg">🖼 Galeri</button><button class="ib" id="sc">📷 Kamera</button><button class="btn" id="spost">Bagikan</button><button class="btn ghost" id="scx">Batal</button></div></div>
+<div id="sv" class="hide"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+    </html>
