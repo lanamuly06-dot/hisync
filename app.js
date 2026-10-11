@@ -1,7 +1,7 @@
 (function(){
 var $=function(i){return document.getElementById(i)};
 var B={ali:{n:"Alisha",c:"#8e8e93"},nova:{n:"Nova",c:"#e5343d"},ikh:{n:"Ikhsan",c:"#2f6fed"}};
-var fa,db,uid,P={},posts=[],chats=[],stories=[],live=null,lchats=[],pick="",stream=null,timer=null,frame="",pimg="",simg="",pphoto=null,tab="home",authed=false,editing=false,ready=false;
+var fa,db,uid,P={},posts=[],chats=[],stories=[],live=null,lchats=[],pick="",isAdmin=false,banned=false,reports=[],stream=null,timer=null,frame="",pimg="",simg="",pphoto=null,tab="home",authed=false,editing=false,ready=false;
 function esc(s){var d=document.createElement("div");d.textContent=s==null?"":s;return d.innerHTML}
 function ago(t){var s=(Date.now()-t)/1000;return s<60?"baru saja":s<3600?Math.floor(s/60)+" mnt":s<86400?Math.floor(s/3600)+" jam":Math.floor(s/86400)+" hr"}
 function nid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
@@ -11,6 +11,22 @@ function av(u,s){var p=P[u],h=p&&p.photo&&String(p.photo).indexOf("data:image/")
 function show(id){["gate","auth","setup","app"].forEach(function(x){$(x).classList.toggle("hide",x!==id)})}
 function put(path,d){return db.doc(path).set(d).catch(function(){alert("Gagal menyimpan. Coba lagi.")})}
 function me(){return P[uid]}
+var cssEl=document.createElement("style");cssEl.textContent=".acts{display:flex;gap:16px;align-items:center}.lb{border:0;background:none;color:var(--mute);font:inherit;font-size:13px;padding:6px 0 0;cursor:pointer}.lb.d{color:#e5343d}.x{color:var(--mute);cursor:pointer;margin-left:8px;font-size:12px}.rep{padding:12px 0;border-top:1px solid var(--line);font-size:13px}";document.head.appendChild(cssEl);
+function del(path){return db.doc(path).delete().catch(function(){alert("Gagal menghapus.")})}
+function ban(u){if(!u||u===uid)return;if(confirm("Blokir pengguna ini? Mereka tidak bisa lagi memakai HISYNC."))put("bans/"+u,{ts:Date.now(),by:uid})}
+function postActs(p){var h="",i=esc(p.id);if(p.uid===uid||isAdmin)h+='<button class="lb d" data-act="del" data-id="'+i+'">Hapus</button>';if(p.uid!==uid)h+='<button class="lb" data-act="rep" data-id="'+i+'">Laporkan</button>';if(isAdmin&&p.uid!==uid)h+='<button class="lb d" data-act="ban" data-id="'+i+'">Blokir</button>';return h}
+function postAct(act,id){var p=posts.filter(function(x){return x.id===id})[0];if(!p)return;
+  if(act==="del"){if(confirm("Hapus postingan ini?"))del("posts/"+id)}
+  else if(act==="ban")ban(p.uid);
+  else if(act==="rep"){var r=prompt("Alasan laporan (mis. spam, kasar, tidak pantas):");if(r===null)return;db.doc("reports/"+id+"_"+uid).set({target:"posts/"+id,author:p.uid,by:uid,text:String(p.text||"").slice(0,100),reason:r.slice(0,100),ts:Date.now()}).then(function(){alert("Terima kasih, laporanmu sudah dikirim ke admin.")}).catch(function(){alert("Gagal mengirim laporan.")})}
+}
+function repHtml(){if(!isAdmin)return"";return '<div class="card"><div class="nm" style="font-size:16px">Laporan ('+reports.length+')</div>'+(reports.length?reports.map(function(r){var i=esc(r.id);return '<div class="rep"><b>'+esc(nm(r.author))+'</b>: '+esc(r.text)+'<br><span class="tm">Dilaporkan '+esc(nm(r.by))+' · '+esc(r.reason||"-")+'</span><div class="acts"><button class="lb d" data-ra="del" data-rid="'+i+'">Hapus konten</button><button class="lb d" data-ra="ban" data-rid="'+i+'">Blokir</button><button class="lb" data-ra="ign" data-rid="'+i+'">Abaikan</button></div></div>'}).join(""):'<div class="tm" style="margin-top:6px">Tidak ada laporan.</div>')+'</div>'}
+function repAct(a,id){var r=reports.filter(function(x){return x.id===id})[0];if(!r)return;
+  if(a==="del"){del(r.target);del("reports/"+id)}
+  else if(a==="ban"){if(r.author===uid)return;if(confirm("Blokir pengguna ini dan hapus kontennya?")){put("bans/"+r.author,{ts:Date.now(),by:uid});del(r.target);del("reports/"+id)}}
+  else del("reports/"+id)
+}
+function modClick(e){var x=e.target.closest("[data-cdel]");if(x){if(confirm("Hapus pesan ini?"))del(x.dataset.cdel);return}var b=e.target.closest("[data-cban]");if(b)ban(b.dataset.cban)}
 var MP={ali:"IMG-20260903-WA0074.jpg",nova:"IMG-20260903-WA0004.jpg",ikh:"IMG-20260901-WA0016.jpg"};
 function shrink(f,m,q,sq){return new Promise(function(ok){var r=new FileReader();r.onload=function(){var i=new Image();i.onload=function(){var c=document.createElement("canvas"),x=c.getContext("2d");if(sq){var s=Math.min(i.width,i.height);c.width=c.height=m;x.drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,m,m)}else{var k=Math.min(1,m/Math.max(i.width,i.height));c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);x.drawImage(i,0,0,c.width,c.height)}ok(c.toDataURL("image/jpeg",q))};i.src=r.result};r.readAsDataURL(f)})}
 function pick1(cam,cb){var f=$(cam?"fc":"fg");f.value="";f.onchange=function(){if(f.files[0])cb(f.files[0])};f.click()}
@@ -67,6 +83,7 @@ function route(){
   if(!authed){show("auth");return}
   if(editing)return;
   if(!me()){var dn=fa&&fa.currentUser&&fa.currentUser.displayName;if(dn&&!$("sn").value)$("sn").value=dn.slice(0,24);$("fm").classList.add("hide");$("fs").classList.remove("hide");show("auth");return}
+  if(editing)return;
   document.documentElement.style.setProperty("--acc",col(uid));
   $("hi").textContent="Hai, "+me().name;
   show("app");renderAll()
@@ -86,23 +103,23 @@ function renderStories(){
   $("addst").onclick=function(){simg="";$("stx").value="";$("spv").innerHTML="";$("sh").classList.remove("hide")};
   [].forEach.call($("stories").querySelectorAll("[data-id]"),function(el){el.onclick=function(){
     var s=stories.filter(function(x){return x.id===el.dataset.id})[0];if(!s)return;
-    var v=$("sv");v.style.background=s.img&&String(s.img).indexOf("data:image/")===0?'#000 url('+s.img+') center/cover':col(s.uid);v.innerHTML='<small>'+esc(nm(s.uid))+' · '+ago(s.ts)+'</small>'+esc(s.text);v.classList.remove("hide");v.onclick=function(){v.classList.add("hide")}}})
+    var v=$("sv");v.style.background=s.img&&String(s.img).indexOf("data:image/")===0?'#000 url('+s.img+') center/cover':col(s.uid);v.innerHTML='<small>'+esc(nm(s.uid))+' · '+ago(s.ts)+'</small>'+esc(s.text)+((s.uid===uid||isAdmin)?'<button class="btn ghost" id="sdel" style="position:absolute;bottom:40px;width:auto;padding:10px 20px">Hapus story</button>':'');var sd=$("sdel");if(sd)sd.onclick=function(ev){ev.stopPropagation();if(confirm("Hapus story ini?")){del("stories/"+s.id);v.classList.add("hide")}};v.classList.remove("hide");v.onclick=function(){v.classList.add("hide")}}})
 }
 function renderPosts(){
   $("posts").innerHTML=posts.length?posts.map(function(p){
     var l=p.likes||[],on=l.indexOf(uid)>-1;
-    return '<div class="post" style="--c:'+col(p.uid)+'"><div class="who">'+av(p.uid,36)+'<div><div class="nm">'+esc(nm(p.uid))+'</div><div class="tm">'+ago(p.ts)+'</div></div></div><div class="txt">'+esc(p.text)+'</div>'+(p.img&&String(p.img).indexOf("data:image/")===0?'<img class="pim" src="'+p.img+'">':'')+'<button class="like'+(on?" on":"")+'" data-id="'+esc(p.id)+'">'+(on?"♥":"♡")+" "+l.length+'</button></div>'}).join(""):'<div class="empty">Belum ada postingan. Jadilah yang pertama menyapa 🤍</div>'
+    return '<div class="post" style="--c:'+col(p.uid)+'"><div class="who">'+av(p.uid,36)+'<div><div class="nm">'+esc(nm(p.uid))+'</div><div class="tm">'+ago(p.ts)+'</div></div></div><div class="txt">'+esc(p.text)+'</div>'+(p.img&&String(p.img).indexOf("data:image/")===0?'<img class="pim" src="'+p.img+'">':'')+'<div class="acts"><button class="like'+(on?" on":"")+'" data-id="'+esc(p.id)+'">'+(on?"♥":"♡")+" "+l.length+'</button>'+postActs(p)+'</div></div>'}).join(""):'<div class="empty">Belum ada postingan. Jadilah yang pertama menyapa 🤍</div>'
 }
 function renderChat(){
   var near=innerHeight+scrollY>document.body.scrollHeight-180,first=!$("msgs").dataset.i;
-  $("msgs").innerHTML=chats.length?chats.map(function(m){var s=m.uid===uid;return '<div class="m'+(s?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+(s?"Kamu":esc(nm(m.uid)))+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada obrolan. Sapa fans lain!</div>';
+  $("msgs").innerHTML=chats.length?chats.map(function(m){var s=m.uid===uid;return '<div class="m'+(s?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+(s?"Kamu":esc(nm(m.uid)))+(s||isAdmin?'<span class="x" data-cdel="chat/'+esc(m.id)+'">✕</span>':'')+(isAdmin&&!s?'<span class="x" data-cban="'+esc(m.uid)+'">⛔</span>':'')+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada obrolan. Sapa fans lain!</div>';
   if(tab==="chat"&&(near||first)){scrollTo(0,document.body.scrollHeight);$("msgs").dataset.i=1}
 }
 function renderLive(){
   var h="";
   if(live&&live.active){
-    h='<div class="card"><span class="live">● LIVE</span><div class="nm" style="font-size:17px">'+esc(live.title)+'</div><div class="tm">oleh '+esc(nm(live.uid))+' · '+ago(live.ts)+'</div>'+(live.uid===uid?'<button class="btn ghost" id="endlive">Akhiri Live</button>':"")+'</div>'+
-    (live.uid===uid?'<video id="lv" autoplay playsinline muted class="lvv"></video>':'<img id="lf" class="lvv" '+(frame?'src="'+frame+'"':'')+'>')+'<div class="msgs" style="padding-bottom:140px">'+(lchats.length?lchats.map(function(m){return '<div class="m'+(m.uid===uid?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+esc(nm(m.uid))+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada komentar.</div>')+'</div>'+
+    h='<div class="card"><span class="live">● LIVE</span><div class="nm" style="font-size:17px">'+esc(live.title)+'</div><div class="tm">oleh '+esc(nm(live.uid))+' · '+ago(live.ts)+'</div>'+(live.uid===uid||isAdmin?'<button class="btn ghost" id="endlive">Akhiri Live</button>':"")+'</div>'+
+    (live.uid===uid?'<video id="lv" autoplay playsinline muted class="lvv"></video>':'<img id="lf" class="lvv" '+(frame?'src="'+frame+'"':'')+'>')+'<div class="msgs" style="padding-bottom:140px">'+(lchats.length?lchats.map(function(m){return '<div class="m'+(m.uid===uid?" me":"")+'" style="--c:'+col(m.uid)+'"><div class="nm">'+esc(nm(m.uid))+(m.uid===uid||isAdmin?'<span class="x" data-cdel="livechat/'+esc(m.id)+'">✕</span>':'')+(isAdmin&&m.uid!==uid?'<span class="x" data-cban="'+esc(m.uid)+'">⛔</span>':'')+'</div><div class="b">'+esc(m.text)+'</div></div>'}).join(""):'<div class="empty">Belum ada komentar.</div>')+'</div>'+
     '<div class="cbar"><input id="lt" maxlength="150" placeholder="Komentar live…"><button id="lb">Kirim</button></div>'
   }else h='<div class="card"><div class="nm" style="font-size:17px">Belum ada live</div><div class="tm">Mulai ruang live dan ajak fans lain ngobrol bareng.</div><label>Judul live</label><input id="ltitle" maxlength="60" placeholder="mis. Nonton bareng"><button class="btn" id="golive">Mulai Live</button></div>';
   var keep=$("lt")?$("lt").value:"";$("livebox").innerHTML=h;if($("lt"))$("lt").value=keep;if($("lv")&&stream)$("lv").srcObject=stream;
@@ -117,7 +134,7 @@ function renderMem(){
 }
 function renderMe(){
   var p=me();if(!p)return;var b=B[p.bias];
-  $("meb").innerHTML='<div class="prof">'+av(uid,84)+'<div class="nm" style="font-size:20px">'+esc(p.name)+'</div><div class="tm">@'+esc(p.username)+' · bias '+(b?b.n:"-")+'</div><p style="margin-top:12px">'+(esc(p.bio)||'<span class="tm">Belum ada bio</span>')+'</p></div><div style="padding:0 24px"><button class="btn ghost" id="edit">Edit profil</button><button class="btn ghost" id="out">Keluar</button></div>';
+  $("meb").innerHTML='<div class="prof">'+av(uid,84)+'<div class="nm" style="font-size:20px">'+esc(p.name)+'</div><div class="tm">@'+esc(p.username)+' · bias '+(b?b.n:"-")+'</div><p style="margin-top:12px">'+(esc(p.bio)||'<span class="tm">Belum ada bio</span>')+'</p></div><div style="padding:0 24px"><button class="btn ghost" id="edit">Edit profil</button><button class="btn ghost" id="out">Keluar</button></div>'+repHtml();
   $("edit").onclick=function(){pick=p.bias;pphoto=null;$("bio").value=p.bio||"";editing=true;openSetup(true)};
   $("out").onclick=function(){stopCam();fa.signOut().then(function(){location.reload()})}
 }
@@ -135,21 +152,21 @@ $("pb").onclick=function(){var t=$("pt").value.trim();if(!t&&!pimg)return;var o=
 function sendChat(){var t=$("ct").value.trim();if(!t)return;$("ct").value="";put("chat/"+nid(),{text:t,uid:uid,ts:Date.now()})}
 $("cb").onclick=sendChat;$("ct").onkeydown=function(e){if(e.key==="Enter")sendChat()};
 $("posts").onclick=function(e){
-  var b=e.target.closest(".like");if(!b)return;
+  var a=e.target.closest("[data-act]");if(a){postAct(a.dataset.act,a.dataset.id);return}var b=e.target.closest(".like");if(!b)return;
   var p=posts.filter(function(x){return x.id===b.dataset.id})[0];if(!p)return;
   var l=(p.likes||[]).slice(),i=l.indexOf(uid);i>-1?l.splice(i,1):l.push(uid);
   db.doc("posts/"+p.id).update({likes:l}).catch(function(){})
 };
+
+$("msgs").onclick=modClick;$("livebox").onclick=modClick;
+$("meb").onclick=function(e){var a=e.target.closest("[data-ra]");if(a)repAct(a.dataset.ra,a.dataset.rid)};
 
 /* DATA */
 function sub(path,ord,lim,fn){db.collection(path).orderBy("ts",ord).limit(lim).onSnapshot(function(s){fn(s.docs.map(function(d){var x=d.data();x.id=d.id;return x}));if(ready&&authed&&!editing&&me())renderAll()},function(){})}
 if(typeof firebase==="undefined"||String(FIREBASE_CONFIG.apiKey).indexOf("ISI")===0){$("gate").innerHTML='<p class="sub">Firebase belum dikonfigurasi. Isi FIREBASE_CONFIG di file config.js.</p>'}
 else{
   firebase.initializeApp(FIREBASE_CONFIG);fa=firebase.auth();db=firebase.firestore();var started=false;
-  fa.onAuthStateChanged(function(u){
-    if(!u){ready=true;authed=false;uid=null;show("auth");return}
-    uid=u.uid;authed=true;
-    if(started)return;started=true;
+  function go(){
     db.collection("profiles").onSnapshot(function(s){P={};s.docs.forEach(function(d){P[d.id]=d.data()});if(!ready){ready=true;route()}else if(!editing)route()},function(){});
     sub("posts","desc",50,function(a){posts=a});
     sub("chat","desc",60,function(a){chats=a.reverse()});
@@ -157,6 +174,10 @@ else{
     sub("livechat","desc",50,function(a){lchats=a.filter(function(m){return live&&m.live===live.ts}).reverse()});
     db.doc("live/current").onSnapshot(function(d){live=d.exists?d.data():null;if(ready&&authed&&!editing&&me())renderLive()},function(){});
     db.doc("live/frame").onSnapshot(function(d){if(d.exists&&String(d.data().img).indexOf("data:image/")===0){frame=d.data().img;var f=$("lf");if(f)f.src=frame}},function(){});
-  });
-}
-})();
+    db.doc("admins/"+uid).get().then(function(d){if(d.exists){isAdmin=true;sub("reports","desc",50,function(a){reports=a});if(ready&&authed&&!editing&&me())renderAll()}},function(){});
+  }
+  fa.onAuthStateChanged(function(u){
+    if(!u){if(banned)return;ready=true;authed=false;uid=null;show("auth");return}
+    uid=u.uid;authed=true;
+    if(started)return;started=true;
+    db.doc("bans/"+uid).get().then(function(d){if(d.exists){banned=true;$
