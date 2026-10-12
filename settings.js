@@ -122,7 +122,7 @@ gear.onclick=openP;
 
 function saveEmail(){var u=fa.currentUser,ne=(form["f-em"]||"").trim(),pwd=form["f-pw"]||"";
   if(!ne||!pwd){say(T("Isi email baru dan password saat ini.","Enter the new email and your current password."),0);return}
-  run(reauth(pwd).then(function(){return u.verifyBeforeUpdateEmail?u.verifyBeforeUpdateEmail(ne):u.updateEmail(ne)}).then(function(){form={};open="";say(T("Link verifikasi dikirim ke email baru. Email berubah setelah kamu mengkliknya.","Verification link sent to the new email. Your email changes after
+  run(reauth(pwd).then(function(){return u.verifyBeforeUpdateEmail?u.verifyBeforeUpdateEmail(ne):u.updateEmail(ne)}).then(function(){form={};open="";say(T("Link verifikasi dikirim ke email baru. Email berubah setelah kamu mengkliknya.","Verification link sent to the new email. Your email changes after you click it."),1)}))}
 function savePass(){var u=fa.currentUser,op=form["f-op"]||"",np=form["f-np"]||"";
   if(!op||np.length<6){say(T("Isi password saat ini dan password baru (min. 6 karakter).","Enter your current password and a new one (min. 6 characters)."),0);return}
   run(reauth(op).then(function(){return u.updatePassword(np)}).then(function(){form={};open="";say(T("Password berhasil diganti.","Password changed."),1)}))}
@@ -167,4 +167,4 @@ fa.onAuthStateChanged(function(u){
     render()
   },function(){})
 });
-})();                                                                                                                                                        
+})();
