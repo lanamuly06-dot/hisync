@@ -9,7 +9,7 @@
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "icons": [
-    {"src": "Tak_berjudul108_20261011224016.png", "sizes": "2048x2048", "type": "image/png", "purpose": "any"},
-    {"src": "Tak_berjudul108_20261011224016.png", "sizes": "2048x2048", "type": "image/png", "purpose": "maskable"}
+    {"src": "Tak berjudul108_20261011224016.png", "sizes": "2048x2048", "type": "image/png", "purpose": "any"},
+    {"src": "Tak berjudul108_20261011224016.png", "sizes": "2048x2048", "type": "image/png", "purpose": "maskable"}
   ]
 }
