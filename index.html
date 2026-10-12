@@ -85,7 +85,10 @@
 <input type="file" id="fg" accept="image/*" hidden><input type="file" id="fc" accept="image/*" capture="user" hidden>
 <div id="sh" class="hide"><div class="sheet"><b>Buat Story</b><textarea id="stx" rows="3" maxlength="100" placeholder="Tulis sesuatu (opsional)"></textarea><div id="spv"></div><button class="ib" id="sg">🖼 Galeri</button><button class="ib" id="sc">📷 Kamera</button><button class="btn" id="spost">Bagikan</button><button class="btn ghost" id="scx">Batal</button></div></div>
 <div id="sv" class="hide"></div>
-
+<script>
+window.onerror=function(m,s,l){alert("Error: "+m+" ("+String(s).split("/").pop()+":"+l+")")};
+window.addEventListener("error",function(e){if(e.target&&e.target.tagName==="SCRIPT")alert("Gagal memuat: "+String(e.target.src).split("/").pop())},true);
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
