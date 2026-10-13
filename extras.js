@@ -55,7 +55,7 @@ function bdLeft(bd){
 var home=$("v-home"),card=document.createElement("div");card.id="bdc";card.className="hide";
 if(home){var hero=home.querySelector(".hero");home.insertBefore(card,hero?hero.nextSibling:home.firstChild)}
 function renderBd(){
-  var l=M.map(function(m){var b=bdLeft(m.bd);b.m=m;return b}).filter(function(b){return b.left<=30}).sort(function(a,b){return a.left-b.left});
+  var l=M.map(function(m){var b=bdLeft(m.bd);b.m=m;return b}).filter(function(b){return b.left<=7}).sort(function(a,b){return a.left-b.left});
   if(!l.length){card.classList.add("hide");card.innerHTML="";return}
   card.classList.remove("hide");
   card.innerHTML='<div class="bdh">🎂 Ulang tahun member</div>'+l.map(function(b){
