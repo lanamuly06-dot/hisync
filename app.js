@@ -204,8 +204,8 @@ $("cb").onclick=sendChat;$("ct").onkeydown=function(e){if(e.key==="Enter")sendCh
 $("posts").onclick=function(e){
   var a=e.target.closest("[data-act]");if(a){postAct(a.dataset.act,a.dataset.id);return}var b=e.target.closest(".like");if(!b)return;
   var p=posts.filter(function(x){return x.id===b.dataset.id})[0];if(!p)return;
-  var l=(p.likes||[]).slice(),i=l.indexOf(uid);if(i>-1)l.splice(i,1);else{l.push(uid);notify(p,"like","","like_"+p.id+"_"+uid)}
-  db.doc("posts/"+p.id).update({likes:l}).catch(function(){})
+  var i=(p.likes||[]).indexOf(uid);if(i===-1)notify(p,"like","","like_"+p.id+"_"+uid);
+  db.doc("posts/"+p.id).update({likes:i>-1?firebase.firestore.FieldValue.arrayRemove(uid):firebase.firestore.FieldValue.arrayUnion(uid)}).catch(function(){})
 };
 
 $("msgs").onclick=modClick;$("livebox").onclick=modClick;
