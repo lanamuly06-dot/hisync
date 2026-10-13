@@ -5,14 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HISYNC</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#f6f7ff">
 <link rel="icon" href="Tak berjudul108_20261011224016.png">
 <link rel="apple-touch-icon" href="Tak berjudul108_20261011224016.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="HISYNC">
 <script>if("serviceWorker"in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js")})</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div id="splash"><img src="Tak berjudul108_20261011224016.png" alt="HISYNC"></div>
@@ -64,6 +68,7 @@
   <header><span class="logo">HISYNC</span><span id="hi" class="tm"></span></header>
   <main>
     <section id="v-home">
+      <div class="hero"><div class="hp"><img src="IMG-20260903-WA0074.jpg" alt=""><img src="IMG-20260903-WA0004.jpg" alt=""><img src="IMG-20260901-WA0016.jpg" alt=""></div><div class="ht"><b>HISYNC</b><span>3 members · Always with you</span></div></div>
       <div class="stories" id="stories"></div>
       <div class="box" style="flex-wrap:wrap"><textarea id="pt" rows="2" maxlength="280" placeholder="Apa yang kamu rasakan hari ini?"></textarea><div id="ppv" style="flex:1 1 100%"></div><button class="ib" id="pg">🖼 Galeri</button><button class="ib" id="pc">📷 Kamera</button><button id="pb" style="margin-left:auto;padding:10px 18px">Kirim</button></div>
       <div id="posts"></div>
@@ -75,11 +80,11 @@
     <section id="v-me" class="hide"><div id="meb"></div></section>
   </main>
   <nav id="nav">
-    <button data-t="home" class="on"><b>⌂</b>Beranda</button>
-    <button data-t="chat"><b>✉</b>Chat</button>
-    <button data-t="live"><b>◉</b>Live</button>
-    <button data-t="mem"><b>★</b>Member</button>
-    <button data-t="me"><b>☺</b>Profil</button>
+    <button data-t="home" class="on"><b><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></b>Beranda</button>
+    <button data-t="chat"><b><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.5l8.5 5.8 8.5-5.8"/></svg></b>Inbox</button>
+    <button data-t="live"><b><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.4"/><path d="M7.6 7.6a6.2 6.2 0 0 0 0 8.8M16.4 7.6a6.2 6.2 0 0 1 0 8.8M4.6 4.6a10.4 10.4 0 0 0 0 14.8M19.4 4.6a10.4 10.4 0 0 1 0 14.8"/></svg></b>Live</button>
+    <button data-t="mem"><b><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></b>Member</button>
+    <button data-t="me"><b><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></b>Profil</button>
   </nav>
 </div>
 <input type="file" id="fg" accept="image/*" hidden><input type="file" id="fc" accept="image/*" capture="user" hidden>
@@ -99,4 +104,4 @@ window.addEventListener("error",function(e){if(e.target&&e.target.tagName==="SCR
 <script src="social.js"></script>
 <script src="feed.js"></script>
 </body>
-    </html>
+</html>
