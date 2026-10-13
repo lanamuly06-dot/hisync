@@ -36,7 +36,7 @@ function row(a,b){return '<div class="mrow"><span>'+a+'</span><span>'+esc(b)+'</
 function renderMd(){
   var k=mk;if(!k)return;
   var i=MI[k],c=B[k].c,b=bdInfo(i.bd);
-  var bday=b.txt+" · "+b.age+" tahun"+(b.left===0?" 🎂 hari ini!":b.left<=30?" 🎂 "+b.left+" hari lagi":"");
+  var bday=b.txt+" · "+b.age+" tahun"+(b.left===0?" 🎂 hari ini!":b.left<=7?" 🎂 "+b.left+" hari lagi":"");
   var h='<button class="back" id="mdb">‹ Kembali</button><div class="mhead" style="--c:'+c+'"><img src="'+MP[k]+'"><div style="font-size:22px;font-weight:700;margin-top:14px">'+esc(i.stage)+'</div><div style="color:var(--mute);font-size:14px">'+esc(i.pos)+'</div></div>'
    +row("Nama lengkap",i.full)+row("Nama panggung",i.stage)+row("Posisi dalam grup",i.pos)+row("Tanggal lahir",bday)+row("MBTI",i.mbti||"Belum diisi")
    +'<div style="font-weight:700;font-size:16px;padding:22px 18px 10px;border-top:1px solid var(--line)">Foto Eksklusif</div>';
