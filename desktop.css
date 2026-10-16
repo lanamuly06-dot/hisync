@@ -1,0 +1,65 @@
+/* HISYNC layout tablet + desktop. Dimuat SETELAH theme.css. HP tidak berubah. */
+#rside{display:none}
+
+/* ===== Tablet / jendela sedang (700-1099px): satu kolom lebih lebar ===== */
+@media (min-width:700px) and (max-width:1099px){
+  body{max-width:680px}
+  body nav,body .cbar{max-width:680px}
+  body .hero{height:190px}
+  body .ov2,body #srch,body #adm,body #stp{max-width:680px}
+  body .sheet{max-width:680px}
+}
+
+/* ===== Desktop (1100px ke atas): menu kiri, feed tengah, panel kanan ===== */
+@media (min-width:1100px){
+  body{max-width:none}
+  body .wrap{max-width:440px;margin:7vh auto;background:var(--card);border-radius:28px;box-shadow:var(--shadow);padding:40px 32px}
+
+  body #app{display:grid;grid-template-columns:240px minmax(0,640px) 320px;grid-template-areas:"side head rside" "side main rside";grid-template-rows:auto 1fr;column-gap:28px;justify-content:center;align-items:start;max-width:1360px;margin:0 auto;padding:20px 24px 40px}
+  body #app>header{grid-area:head;position:static;background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;padding:4px 0 12px;justify-content:flex-end}
+  body #app>header .logo{display:none}
+  body #app>main{grid-area:main;min-width:0;padding-bottom:40px}
+
+  /* menu kiri */
+  body #app>nav{grid-area:side;position:sticky;top:20px;left:auto;bottom:auto;transform:none;width:auto;max-width:none;flex-direction:column;gap:4px;padding:16px 12px;border-radius:24px;align-self:start}
+  body #app>nav::before{content:"HISYNC";display:block;font:800 22px/1 var(--ui);letter-spacing:.28em;padding:8px 16px 18px;color:var(--fg)}
+  body #app>nav::after{content:"Always with you ♡";display:block;font:700 19px/1 var(--hand);color:var(--brand-ink);padding:18px 16px 6px}
+  body #app>nav button{display:flex;align-items:center;gap:14px;flex:none;width:100%;text-align:left;font:600 16px var(--ui);padding:13px 16px;border-radius:16px}
+  body #app>nav button b{display:flex;margin:0}
+  body #app>nav button b svg{margin:0;width:24px;height:24px}
+  body #app>nav button:hover{background:var(--soft)}
+  body #app>nav button.on{background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand-ink)}
+
+  /* panel kanan */
+  body #app>#rside{display:flex;flex-direction:column;gap:16px;grid-area:rside;position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow-y:auto;padding-bottom:10px}
+  .rw{background:var(--card);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
+  .rw h3{font-size:15px;font-weight:800;margin-bottom:8px}
+  .rsb{display:block;width:100%;border:0;background:var(--card);color:var(--mute);border-radius:99px;padding:13px 18px;font:600 14px var(--ui);text-align:left;cursor:pointer;box-shadow:var(--shadow)}
+  .rmm{display:flex;align-items:center;gap:12px;padding:8px 0;cursor:pointer}
+  .rmm img{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 20%;outline:2px solid var(--mc);outline-offset:2px;flex:none}
+  .rmm .n{font:700 26px/1 var(--hand);color:var(--mc)}
+  .rbd{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+  .rbd:first-of-type{border-top:0}
+  .rbd .n{font:700 22px/1 var(--hand);color:var(--mc)}
+  .rbd .d{margin-left:auto;font-size:12px;color:var(--mute);text-align:right}
+  .rbd.td .d{color:var(--mc);font-weight:700}
+  .rht{display:flex;flex-wrap:wrap;gap:8px}
+  .rht .ht{background:var(--soft);border-radius:99px;padding:6px 12px;font-size:13px}
+  .rht small{color:var(--mute);margin-left:4px;font-weight:600}
+  .rw .tm{font-size:13px}
+
+  /* kartu ulang tahun pindah ke panel kanan */
+  body #bdc{display:none}
+  body .hero{height:200px}
+
+  /* chat: kolom input menempel di bawah layar, bukan di tengah jendela */
+  body main .cbar{position:sticky;bottom:0;left:auto;transform:none;width:auto;max-width:none;margin:0}
+  body .msgs{padding-bottom:20px!important}
+  #v-chat:not(.hide),#livebox{display:flex;flex-direction:column;min-height:calc(100vh - 80px)}
+  #v-chat .msgs,#livebox .msgs{flex:1}
+
+  /* panel penuh (profil, cari, pengaturan, admin) tampil sebagai jendela di tengah dengan latar redup */
+  body .ov2,body #srch,body #adm,body #stp{max-width:560px;box-shadow:0 0 0 100vmax rgba(14,17,38,.5)}
+  body .ov,body #sh{align-items:center}
+  body .sheet{border-radius:24px;max-width:520px;max-height:86vh;overflow:auto}
+}
