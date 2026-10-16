@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HISYNC</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f6f7ff">
+<link rel="icon" href="Tak berjudul108_20261011224016.png">
+<link rel="apple-touch-icon" href="Tak berjudul108_20261011224016.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HISYNC">
+<script>if("serviceWorker"in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js")})</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="theme.css">
+<style>
+/* ===== Halaman masuk & daftar ===== */
+body #auth.wrap{padding:0;display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+#auth .ah{text-align:center;padding:calc(30px + env(safe-area-inset-top,0px)) 20px 52px;background:linear-gradient(180deg,var(--cov1,#c6d6ff),var(--cov2,#e9efff))}
+#auth .afaces{display:flex;justify-content:center;align-items:center;margin-bottom:14px}
+#auth .afaces img{width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:3px solid var(--bg);margin-left:-14px;box-shadow:0 6px 16px rgba(94,115,200,.25)}
+#auth .afaces img:first-child{margin-left:0}
+#auth .afaces img:nth-child(2){width:78px;height:78px;position:relative;z-index:1}
+#auth .alogo{font:800 26px/1 var(--ui,inherit);letter-spacing:.3em;padding-left:.3em;color:var(--fg)}
+#auth .atag{font:700 22px/1.1 var(--hand,cursive);color:var(--brand-ink,#4a5fd6);margin-top:5px}
+#auth .ac{flex:1;margin-top:-26px;background:var(--bg);border-radius:28px 28px 0 0;padding:22px 22px calc(32px + env(safe-area-inset-bottom,0px));position:relative}
+#auth .atb{display:flex;gap:4px;padding:4px;background:var(--soft);border-radius:14px}
+#auth .atb button{flex:1;border:0;background:none;color:var(--mute);font:700 14px var(--ui,inherit);padding:10px;border-radius:11px;cursor:pointer;transition:background .15s,color .15s}
+#auth .atb button.on{background:var(--card,#fff);color:var(--fg);box-shadow:0 2px 8px rgba(94,115,200,.18)}
+#auth .at{font:800 22px/1.25 var(--ui,inherit);margin:20px 0 4px}
+#auth .as{color:var(--mute);font-size:14px;margin-bottom:18px}
+#auth .soc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#auth .soc .sb{display:flex;align-items:center;justify-content:center;gap:10px;margin:0;padding:12px 8px;border-radius:14px;border:1px solid var(--line);background:var(--card,#fff);box-shadow:var(--shadow);font:600 14px var(--ui,inherit)}
+#auth .soc svg{width:20px;height:20px;flex:none}
+#auth .adv{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:12px;margin:20px 0 4px}
+#auth .adv::before,#auth .adv::after{content:"";flex:1;height:1px;background:var(--line)}
+#auth label{font-size:13px;font-weight:600;color:var(--fg);margin:14px 0 6px}
+#auth .fld{position:relative}
+#auth .fld>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:19px;height:19px;color:var(--mute);stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#auth .fld>.ats{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-weight:700;font-size:16px;color:var(--mute);pointer-events:none}
+#auth .fld input{height:50px;padding:0 46px 0 44px;border-radius:14px;background:var(--soft);border:1.5px solid transparent;font-size:15px}
+#auth .fld input:focus{background:var(--card,#fff);border-color:var(--brand,#7f95ff);box-shadow:0 0 0 4px color-mix(in srgb,var(--brand,#7f95ff) 20%,transparent)}
+#auth .eye{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;background:none;color:var(--mute);display:grid;place-items:center;cursor:pointer;border-radius:50%}
+#auth .eye svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#auth .eye .off,#auth .eye.on .open{display:none}
+#auth .eye.on .off{display:block}
+#auth .eye.on{color:var(--brand-ink,#4a5fd6)}
+#auth .lnk{display:block;width:auto;margin:10px 0 0 auto;color:var(--brand-ink,#4a5fd6);font-weight:600}
+#auth .btn{height:52px;padding:0;border-radius:16px;margin-top:18px;font-size:16px;box-shadow:0 8px 20px color-mix(in srgb,var(--brand,#7f95ff) 35%,transparent)}
+#auth .err{margin-top:14px;min-height:0;text-align:left}
+#auth .err:not(:empty){background:color-mix(in srgb,#e5343d 12%,var(--card,#fff));color:#d12d46;padding:11px 14px;border-radius:12px;font-size:13px;font-weight:500}
+#auth .atn{font-size:12px;color:var(--mute);text-align:center;margin-top:14px}
+#auth .hint{font-size:12px;color:var(--mute);margin-top:6px}
+#auth .stp{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--mute)}
+#auth .stp i{flex:1;height:2px;background:var(--line);border-radius:2px}
+#auth .stp .done{color:#2fa36b}
+#auth .stp .now{color:var(--brand-ink,#4a5fd6);background:color-mix(in srgb,var(--brand,#7f95ff) 15%,transparent);padding:5px 10px;border-radius:99px}
+#fm[data-mode="login"] .m-signup,#fm[data-mode="signup"] .m-login{display:none!important}
+@media (min-width:560px){
+  body #auth.wrap{max-width:440px;min-height:0;margin:6vh auto;border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(94,115,200,.22);background:var(--card,#fff)}
+  #auth .ac{background:var(--card,#fff)}
+  #auth .afaces img{border-color:var(--card,#fff)}
+}
+</style>
+</head>
+<body>
+<div id="splash"><img src="Tak berjudul108_20261011224016.png" alt="HISYNC"></div>
+<style>
+#splash{position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:99999;display:flex;align-items:center;justify-content:center;transition:opacity .4s ease}
+#splash img{width:200px;max-width:55vw;height:auto;animation:pop 1s ease-out both}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+#splash.out{opacity:0;pointer-events:none}
+</style>
+<script>
+(function(){var s=document.getElementById("splash");setTimeout(function(){s.classList.add("out")},1400);setTimeout(function(){s.remove()},1900)})();
+</script>
+
+<div id="gate" class="wrap"><p class="sub">Memuat…</p></div>
+
+<div id="auth" class="wrap hide">
+  <div class="ah">
+    <div class="afaces"><img src="IMG-20260901-WA0016.jpg" alt=""><img src="IMG-20260903-WA0074.jpg" alt=""><img src="IMG-20260903-WA0004.jpg" alt=""></div>
+    <div class="alogo">HISYNC</div>
+    <div class="atag">Always with you ♡</div>
+  </div>
+  <div class="ac">
+    <div id="fm" data-mode="login">
+      <div class="atb"><button type="button" data-m="login" class="on">Masuk</button><button type="button" data-m="signup">Daftar</button></div>
+      <h2 class="at"><span class="m-login">Selamat datang kembali 👋</span><span class="m-signup">Buat akun HISYNC</span></h2>
+      <p class="as"><span class="m-login">Masuk untuk lanjut ngobrol bareng member dan fans lain.</span><span class="m-signup">Gratis, dan cuma butuh semenit.</span></p>
+      <div class="soc">
+        <button class="sb" id="bg" type="button"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</button>
+        <button class="sb" id="bf" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1877F2"/><path fill="#fff" d="M13.4 19.5v-6.6h2.2l.4-2.7h-2.6V8.5c0-.8.3-1.3 1.4-1.3H16V4.8c-.2 0-1-.1-1.9-.1-2 0-3.4 1.2-3.4 3.5v1.99H8.5v2.7h2.2v6.6z"/></svg>Facebook</button>
+      </div>
+      <div class="adv"><span>atau dengan email</span></div>
+      <label for="em">Email</label>
+      <div class="fld"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg><input id="em" type="email" inputmode="email" placeholder="nama@email.com" autocomplete="email"></div>
+      <label for="pw">Password</label>
+      <div class="fld"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="pw" type="password" placeholder="Minimal 6 karakter" autocomplete="current-password"><button type="button" class="eye" aria-label="Tampilkan password"><svg class="open" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.6 7-10 7c-2 0-3.7-.7-5.1-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18"/></svg></button></div>
+      <button class="lnk m-login" id="bfp" type="button">Lupa password?</button>
+      <button class="btn m-login" id="bin" type="button">Masuk</button>
+      <button class="btn m-signup" id="bup" type="button">Buat akun</button>
+      <p class="atn m-signup">Dengan membuat akun, kamu setuju untuk saling menjaga sopan santun di HISYNC 🤍</p>
+    </div>
+    <div id="fs" class="hide">
+      <div class="stp"><span class="done">✓ Akun</span><i></i><span class="now">2 Identitas</span><i></i><span>3 Profil</span></div>
+      <h2 class="at">Satu langkah lagi</h2>
+      <p class="as">Pilih nama dan username yang akan dilihat fans lain.</p>
+      <label for="sn">Nama tampilan</label>
+      <div class="fld"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg><input id="sn" maxlength="24" placeholder="Nama kamu" autocomplete="name"></div>
+      <label for="su">Username</label>
+      <div class="fld"><span class="ats">@</span><input id="su" maxlength="20" placeholder="fans_hisync" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+      <div class="hint">3–20 karakter: huruf, angka, _ atau titik, tanpa spasi. Username bisa diganti tiap 14 hari.</div>
+      <button class="btn" id="signup" type="button">Lanjut</button>
+      <button class="lnk" id="fsout" type="button">Ganti akun</button>
+    </div>
+    <div class="err" id="aerr" role="alert"></div>
+  </div>
+  <!-- Elemen lama untuk login nomor telepon. Disembunyikan agar app.js tidak error; boleh dihapus bersama kode SMS di app.js. -->
+  <div hidden aria-hidden="true"><input id="ph"><button id="bsms" type="button"></button><div id="cdw"><input id="cd"><button id="bcode" type="button"></button></div><div id="rc"></div></div>
+</div>
+
+<div id="setup" class="wrap hide">
+  <h1 style="font-size:24px;padding:0" id="stt">Lengkapi profilmu</h1><p class="sub">Pilih bias dan tulis bio singkat</p><div style="text-align:center"><div id="ppv2" style="display:flex;justify-content:center;margin:6px 0 10px"></div><button class="ib" id="ppg">🖼 Galeri</button><button class="ib" id="ppc">📷 Kamera</button></div>
+  <label>Bias favoritmu</label>
+  <div class="bias" id="bias"></div>
+  <label>Bio</label><textarea id="bio" rows="4" maxlength="160" placeholder="Ceritakan tentang dirimu…"></textarea>
+  <button class="btn" id="done">Simpan</button>
+  <button class="btn ghost hide" id="cancel">Batal</button>
+</div>
+
+<div id="app" class="hide">
+  <header><span class="logo">HISYNC</span><span id="hi" class="tm"></span></header>
+  <main>
+    <section id="v-home">
+      <div class="hero"><div class="hp"><img src="IMG-20260903-WA0074.jpg" alt=""><img src="IMG-20260903-WA0004.jpg" alt=""><img src="IMG-20260901-WA0016.jpg" alt=""></div><div class="ht"><b>HISYNC</b><span>3 members · Always with you</span></div></div>
+      <div class="stories" id="stories"></div>
+      <div class="box" style="flex-wrap:wrap"><textarea id="pt" rows="2" maxlength="280" placeholder="Apa yang kamu rasakan hari ini?"></textarea><div id="ppv" style="flex:1 1 100%"></div><button class="ib" id="pg">🖼 Galeri</button><button class="ib" id="pc">📷 Kamera</button><button id="pb" style="margin-left:auto;padding:10px 18px">Kirim</button></div>
+      <div id="posts"></div>
+    </section>
+    <section id="v-chat" class="hide"><div class="msgs" id="msgs"></div>
+      <div class="cbar"><input id="ct" maxlength="200" placeholder="Ketik pesan…"><button id="cb">Kirim</button></div></section>
+    <section id="v-live" class="hide"><div id="livebox"></div></section>
+    <section id="v-mem" class="hide"><div id="mems"></div></section>
+    <section id="v-me" class="hide"><div id="meb"></div></section>
+  </main>
+  <nav id="nav">
+    <button data-t="home" class="on"><b><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></b>Beranda</button>
+    <button data-t="chat"><b><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.5l8.5 5.8 8.5-5.8"/></svg></b>Inbox</button>
+    <button data-t="live"><b><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.4"/><path d="M7.6 7.6a6.2 6.2 0 0 0 0 8.8M16.4 7.6a6.2 6.2 0 0 1 0 8.8M4.6 4.6a10.4 10.4 0 0 0 0 14.8M19.4 4.6a10.4 10.4 0 0 1 0 14.8"/></svg></b>Live</button>
+    <button data-t="mem"><b><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></b>Member</button>
+    <button data-t="me"><b><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></b>Profil</button>
+  </nav>
+</div>
+<input type="file" id="fg" accept="image/*" hidden><input type="file" id="fc" accept="image/*" capture="user" hidden>
+<div id="sh" class="hide"><div class="sheet"><b>Buat Story</b><textarea id="stx" rows="3" maxlength="100" placeholder="Tulis sesuatu (opsional)"></textarea><div id="spv"></div><button class="ib" id="sg">🖼 Galeri</button><button class="ib" id="sc">📷 Kamera</button><button class="btn" id="spost">Bagikan</button><button class="btn ghost" id="scx">Batal</button></div></div>
+<div id="sv" class="hide"></div>
+<script>
+window.onerror=function(m,s,l){alert("Error: "+m+" ("+String(s).split("/").pop()+":"+l+")")};
+window.addEventListener("error",function(e){if(e.target&&e.target.tagName==="SCRIPT")alert("Gagal memuat: "+String(e.target.src).split("/").pop())},true);
+</script>
+<script>
+/* Tab Masuk/Daftar, tombol lihat password, dan Enter untuk kirim */
+(function(){
+  var fm=document.getElementById("fm"),pw=document.getElementById("pw");
+  function mode(m){
+    fm.setAttribute("data-mode",m);
+    [].forEach.call(fm.querySelectorAll(".atb button"),function(b){b.classList.toggle("on",b.getAttribute("data-m")===m)});
+    pw.setAttribute("autocomplete",m==="signup"?"new-password":"current-password");
+    document.getElementById("aerr").textContent=""
+  }
+  fm.addEventListener("click",function(e){
+    var t=e.target.closest(".atb button");if(t){mode(t.getAttribute("data-m"));return}
+    var y=e.target.closest(".eye");
+    if(y){var show=pw.type==="password";pw.type=show?"text":"password";y.classList.toggle("on",show);y.setAttribute("aria-label",show?"Sembunyikan password":"Tampilkan password")}
+  });
+  fm.addEventListener("keydown",function(e){
+    if(e.key==="Enter"&&(e.target.id==="em"||e.target.id==="pw")){e.preventDefault();document.getElementById(fm.getAttribute("data-mode")==="signup"?"bup":"bin").click()}
+  });
+  document.getElementById("su").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();document.getElementById("signup").click()}});
+  document.getElementById("sn").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();document.getElementById("su").focus()}});
+})();
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script src="members.js"></script>
+<script src="settings.js"></script>
+<script src="social.js"></script>
+<script src="feed.js"></script>
+<script src="extras.js"></script>
+<script src="plus.js"></script>
+<script src="more.js"></script>
+</body>
+</html>
